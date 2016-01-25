@@ -15,20 +15,20 @@ same role, so they make a good comparison. There are also both software and
 hardware implementations (including slave support) in avrlib, but I couldn't
 get them to compile with avr-gcc 4.9.2.
 
-Feature | rtwi (SW) | rtwi (HW) | i2cmaster.S | twimaster.c
--|-|-|-|-|-
-supported hardware | any | TWI | any | TWI
-license | MIT | MIT | GPL | GPL
-I²C master | YES | YES | YES | YES
-I²C slave | no | no | no | no
-any two IO pins | YES | no | YES | no
-can split SDI and SDO | YES | no | no | no
-simple clock speed selection¹ | YES | YES | no | YES
-can change speed at run time | no | no | no | YES
-clock stretching (as master) | YES | YES | YES | YES
-multiple master | no | no | no | YES
-implementation language | asm | asm | asm | C
-code size² (bytes) | 92 | 58 | 180 | 172
+Feature                       | rtwi (SW) | rtwi (HW) | i2cmaster.S | twimaster.c
+------------------------------|-----------|-----------|-------------|-------------
+supported hardware            | any       | TWI       | any         | TWI
+license                       | MIT       | MIT       | GPL         | GPL
+I²C master                    | YES       | YES       | YES         | YES
+I²C slave                     | no        | no        | no          | no
+any two IO pins               | YES       | no        | YES         | no
+can split SDI and SDO         | YES       | no        | no          | no
+simple clock speed selection¹ | YES       | YES       | no          | YES
+can change speed at run time  | no        | no        | no          | YES
+clock stretching (as master)  | YES       | YES       | YES         | YES
+multiple master               | no        | no        | no          | YES
+implementation language       | asm       | asm       | asm         | C
+code size² (bytes)            | 92        | 58        | 180         | 172
 
 1. i2cmaster.S requires you to adjust a half-cycle delay function to set the
 clock speed. rtwi and twimaster.c convert the desired clock frequency (eg, 100
