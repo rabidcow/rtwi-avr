@@ -15,7 +15,7 @@ MCU = attiny44a
 LED = A2
 
 # Define how your I2C bus is connected.
-TWI_CONFIG = TWI_SCL='(A,1)' TWI_SDA='(A,0)' TWI_TRISE=450
+TWI_CONFIG = TWI_SCL='(A,1)' TWI_SDA='(A,0)' TWI_TRISE=0
 I2C_CONFIG = SDA_PORT=PORTA SCL_PORT=PORTA SDA=0 SCL=1
 # Hardware I2C uses the hardware SDA and SCL pins instead.
 #USE_HARDWARE_TWI = YES
@@ -23,7 +23,7 @@ I2C_CONFIG = SDA_PORT=PORTA SCL_PORT=PORTA SDA=0 SCL=1
 #USE_INTERNAL_PULLUP = YES
 
 # CPU frequency in Hz.
-F_CPU = 8000000
+F_CPU = 4000000
 # I2C bus frequency in Hz.
 F_TWI = 100000
 
