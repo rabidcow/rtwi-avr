@@ -95,6 +95,6 @@ summary :
 ifdef USE_HARDWARE_TWI
 	@echo "    TWI: hardware (TWI)"
 else
-	@echo "    TWI: SDA=$(TWI_SDA) SCL=$(TWI_SCL)"
+	@echo "    TWI: $(TWI_CONFIG)"
 endif
 	@echo ""
