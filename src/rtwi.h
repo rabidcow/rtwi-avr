@@ -94,8 +94,8 @@ THE SOFTWARE.
 #       error "F_TWI too large."
 #   endif
 
-#   define TWI_TGLITCH (2 * 1000000000 / F_CPU) /* 2 CPU cycles to set output bit. */
-#   define TWI_TLOW_EXTRA (TWI_TLOW_MIN - (TWI_THDDAT_MIN + TWI_TSUDAT_MIN + TWI_TGLITCH))
+#   define TWI_TSETDATA (4 * 1000000000 / F_CPU) /* 4 CPU cycles to set output bit. */
+#   define TWI_TLOW_EXTRA (TWI_TLOW_MIN - (TWI_THDDAT_MIN + TWI_TSUDAT_MIN + TWI_TSETDATA))
 #   if TWI_TLOW_EXTRA < 0
 #       undef TWI_TLOW_EXTRA
 #       define TWI_TLOW_EXTRA 0
@@ -111,13 +111,13 @@ THE SOFTWARE.
 #   ifndef TWI_TFALL
 #       define TWI_TFALL 6
 #   endif
-
-/* 100 kHz = 10000 ns = 80 clocks @ 8 MHz */
-/* 400 kHz =  2500 ns = 20 clocks @ 8 MHz */
-/*   1 MHz =  1000 ns                     */
-#   define TWI_TCYCLE (1000000000 / F_TWI)
 // Rise time is from 30% to 70% of Vbus, but we start at zero, which takes 42% longer.
+// Clock-stretching code will always take 3n + 3 cycles for some n.
 #   define TWI_TRISE_FROM_ZERO (TWI_TRISE + TWI_TRISE*42/100)
+
+// Fill up time to meet the requested clock rate; we try to spend this time
+// with the clock high because that reduces power usage.
+#   define TWI_TCYCLE (1000000000 / F_TWI)
 #   define TWI_TCYCLE_EXTRA (TWI_TCYCLE - (TWI_TSUSTA_MIN + TWI_TLOW_MIN) - (TWI_TRISE_FROM_ZERO + TWI_TFALL))
 #   if TWI_TCYCLE_EXTRA < 0
 #       undef TWI_TCYCLE_EXTRA

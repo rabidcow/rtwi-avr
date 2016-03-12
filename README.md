@@ -3,8 +3,9 @@
 
 ## What is it?
 
-rtwi is a software (bit-bang) implementation of the I²C interface, operating as
-a bus master, for AVR microcontrollers.
+rtwi is a software (bit-bang) implementation of the [I²C
+interface](https://en.wikipedia.org/wiki/I%C2%B2C), operating as a bus master,
+for [AVR](https://en.wikipedia.org/wiki/Atmel_AVR) microcontrollers.
 
 An implementation using dedicated TWI hardware is also included as an option.
 
@@ -20,7 +21,13 @@ An implementation using dedicated TWI hardware is also included as an option.
 * It supports some weird configurations. Not only can you assign SCL and SDA to
   any two pins, you can split SDA into SDI and SDO and separate BUSY from SCL.
 * It's **MIT licensed**. Want to use this in a closed-source product so you can
-  shave a few cents off by using a part with less flash? Please do.
+  shave a few cents off by using a part with less flash? Go right ahead.
+
+## Gratuitous Oscilloscope Trace
+
+Because people like pictures.
+
+![rtwi waveform](doc/rtwi_start.png)
 
 ## How do I use it?
 

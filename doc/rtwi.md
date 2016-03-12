@@ -28,7 +28,7 @@ can change speed at run time  | no        | no        | no          | YES
 clock stretching (as master)  | YES       | YES       | YES         | YES
 multiple master               | no        | no        | no          | YES
 implementation language       | asm       | asm       | asm         | C
-code size² (bytes)            | 92        | 58        | 180         | 172
+code size² (bytes)            | 90        | 58        | 180         | 172
 
 1. i2cmaster.S requires you to adjust a half-cycle delay function to set the
 clock speed. rtwi and twimaster.c convert the desired clock frequency (eg, 100
@@ -61,7 +61,7 @@ And a typical "read 1-byte register" looks like this:
 
 Set the start or repeated start condition on the bus and take SCL low in
 preparation for the first data bit. This must be called at the beginning of
-each packet sent or recieved to alert slave devices and take control of the
+each packet sent or received to alert slave devices and take control of the
 bus. You also need to send a repeated start condition when switching from
 sending to receiving.
 
@@ -248,3 +248,26 @@ There's an exact equivalent to everything in i2cmaster except for
 `i2c_start_wait`, so you could just change all the names in code written for
 that and it'll just work (on rare occasion, the real API can be more
 efficient). A header file is provided that defines everything for this.
+
+## Measured Results
+
+The test circuit is an ATtiny44a on a breadboard with 4.7 kΩ pull-up resistors
+and no slave devices attached. `F_CPU` is set to 4 MHz and `F_TWI` to 100 kHz.
+`TWI_TRISE` is set to 580.
+
+![rtwi waveform](rtwi_start.png)
+
+Parameter          | Measured | I²C Min | I²C Max | Description
+-------------------|----------|---------|---------|-------------
+f<sub>SCL</sub>    | 92.6 kHz | 0       | 100 kHz | bus clock frequency
+t<sub>HD;STA</sub> |  4.3 μs  | 4.0 μs  |         | hold time for start condition
+t<sub>LOW</sub> 0  |  4.9 μs  | 4.7 μs  |         | clock low time; data = 0
+t<sub>LOW</sub> 1  |  4.7 μs  | 4.7 μs  |         | clock low time; data = 1
+t<sub>HIGH</sub>   |  5.5 μs  | 4.0 μs  |         | clock high time
+t<sub>HD;DAT</sub> |  2.9 μs  | 0       |         | data hold time
+t<sub>SU;DAT</sub> |  1.2 μs  | 0.25 μs |         | data set-up time
+
+When setting up the data line, rtwi always sets it high and then conditionally
+pulls it low. This is only really visible on a low to low transition, which was
+not captured in this sample. Setting it to low takes one CPU clock more than
+not, which explains the difference in t<sub>LOW</sub>.

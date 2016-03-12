@@ -183,7 +183,7 @@ Implementation of TWI in software.
 
 // Shave off some time for the rcall into twi_begin_clock_pulse, tuned for the rounding that will happen in ndelay.
 // It gets the smallest delay because it has the least work to hide.
-#define TWI_TLOW_SLIVER (TWI_TLOW_EXTRA/19)
+#define TWI_TLOW_SLIVER (TWI_TLOW_EXTRA/3)
 #define TWI_TCYCLE_SLIVER (TWI_TCYCLE_EXTRA/3)
 
 .section .text.twi_sw
@@ -203,7 +203,7 @@ twi_start_condition:                    ; void twi_start_condition(void);
 twi_end_clock_pulse:
     SET_SCL_LOW
                                         ; wait data hold time + half of low time
-    ndelay (TWI_THDDAT_MIN + TWI_TLOW_EXTRA-TWI_TLOW_SLIVER), (CPU_CYCLES_SBI + CPU_CYCLES_RET + CPU_CYCLES_RCALL + CPU_CYCLES_DEC + 2 + CPU_CYCLES_LSL + CPU_CYCLES_ROL)
+    ndelay (TWI_THDDAT_MIN + TWI_TLOW_EXTRA-TWI_TLOW_SLIVER), (CPU_CYCLES_SBI + CPU_CYCLES_RET + CPU_CYCLES_DEC + CPU_CYCLES_BRNE+1 + CPU_CYCLES_LSL + CPU_CYCLES_ROL + CPU_CYCLES_CBI)
     ret
 
 .global twi_stop_condition
@@ -215,7 +215,7 @@ twi_stop_condition:                     ; void twi_stop_condition(void);
 
 twi_begin_clock_pulse:
                                         ; We just had a transition, so we need to wait for the data set-up time.
-    ndelay (TWI_TSUDAT_MIN + TWI_TLOW_SLIVER + TWI_TCYCLE_SLIVER), CPU_CYCLES_RCALL
+    ndelay (TWI_TSUDAT_MIN + TWI_TLOW_SLIVER + TWI_TCYCLE_SLIVER), (CPU_CYCLES_SBI + CPU_CYCLES_RCALL + CPU_CYCLES_CBI)
     SET_SCL_HIGH                        ; Float the clock high.
 1:  SKIP_IF_BUSY_HIGH                   ; Wait for slaves to release the clock as well.
     rjmp 1b
@@ -223,7 +223,7 @@ twi_begin_clock_pulse:
                                         ; This also works for stop condition, because it's the same length.
     ; Wait the extra time required to meet our target clock rate during the high pules, because that consumes less power.
     // need MAX(TWI_TSUSTA_MIN, TWI_THIGH_MIN, TWI_TSUSTO_MIN)
-    ndelay (TWI_TSUSTA_MIN + TWI_TCYCLE_EXTRA-TWI_TCYCLE_SLIVER), (2 + CPU_CYCLES_RET + CPU_CYCLES_SBI + 2 + CPU_CYCLES_INC)
+    ndelay (TWI_TSUSTA_MIN + TWI_TCYCLE_EXTRA-TWI_TCYCLE_SLIVER), (CPU_CYCLES_SBIS+1 + CPU_CYCLES_RET + CPU_CYCLES_SBIC + CPU_CYCLES_INC + CPU_CYCLES_RCALL)
     ret
 
 /*
@@ -276,7 +276,7 @@ twi_send_or_recv_byte:
 1:  lsl ACK_REG                         ; shift out the next bit to send
     rol DATA_REG
     SET_SDO_HIGH                        ; (1) set SDA to value of carry flag
-    brcs 2f                             ; This will glitch for 2 clocks if we're setting SDA
+    brcs 2f                             ; This will glitch for 3 clocks if we're setting SDA
     SET_SDO_LOW                         ; low, but since SCL is low, that should be fine.
 2:  rcall twi_begin_clock_pulse         ; (2) do the clock pulse
     SKIP_IF_SDI_LOW                     ; (3) check data level at the end
